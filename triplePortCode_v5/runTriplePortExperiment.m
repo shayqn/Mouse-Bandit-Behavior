@@ -358,9 +358,11 @@ end
 function triplePortCleanup()
 disp('Cleaning up...')
 
-%turn LED off
-global centerPort
+%turn all LEDs off
+global centerPort rightPort leftPort
 centerPort.ledOff();
+rightPort.ledOff();
+leftPort.ledOff();
 
 %close log file
 global logFileID AllNosePorts
