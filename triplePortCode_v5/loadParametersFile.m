@@ -8,8 +8,12 @@ function [params, paramFileName] = loadParametersFile(paramFileName)
 	if ~exist(paramFileName,'file')
 	    [paramFile,paramPath] = uigetfile('*.csv','Open experiment parameter file');
 	    paramFileName = fullfile(paramPath,paramFile);
-	end
-	T = readtable(paramFileName);
+    end
+    %Note: readtable function seems to have slight changed in R2016A. For
+    %R2016 use the following line:
+    % T = readtable(paramFileName,'delimiter',','); %Shay - added "'delimiter',','" to work in 2016a
+    % For earlier versions use:
+    T = readtable(paramFileName);
 	for i = 1:size(T,1)
 	    params.(T.pName{i}) = T.pVal(i); % store parameters in structure 'p'
 	end
