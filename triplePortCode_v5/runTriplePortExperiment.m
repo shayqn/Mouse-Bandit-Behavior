@@ -196,6 +196,9 @@ elseif portID == rightPort.portID || portID == leftPort.portID
         end
     else %if we're not in a trial then any left or right poke is an error poke.
         pokeHistory(pokeCount).isTRIAL = 0;
+        %and we should turn off the lights until the center port is active
+        %again
+        centerPort.ledOff();
     end
     %finally have to deal with the center pokes
 elseif portID == centerPort.portID
