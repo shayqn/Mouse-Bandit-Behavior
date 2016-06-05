@@ -121,9 +121,8 @@ global stats
 stats = initializestats;
 cumstats = cumsumstats(stats);
 %create figure for onilne visualization
-global h
+global h psL psR
 h = initializestatsfig(cumstats);
-
 %initialize plotly fig
 [psL,psR] = initializeplotlyfig();
 psL.open();
@@ -153,7 +152,7 @@ global rightPort leftPort centerPort
 global activateLeft activateRight
 global stats
 global iti
-global h
+global h psL psR
 
 pokeCount = pokeCount+1; %increment pokeCount
 timeSinceLastPoke = etime(datevec(now),lastPokeTime);
@@ -237,6 +236,9 @@ pokeHistory(pokeCount).REWARD = 0;
 stats = updatestats(stats,pokeHistory(pokeCount),pokeCount);
 cumstats = cumsumstats(stats);
 updatestatsfig(cumstats,h,pokeCount);
+
+%update plotly fig
+updateplotlyfig(psL,psR,cumstats,pokeCount);
 
 %update the lastPokeTime
 lastPokeTime = datevec(now);
@@ -371,6 +373,11 @@ leftPort.ledOff();
 %close log file
 global logFileID AllNosePorts
 fclose(logFileID);
+
+%close plotly stream
+global psL psR
+psL.close();
+psR.close();
 
 %deactivate any nose ports (just to make sure)
 for n = AllNosePorts
