@@ -44,9 +44,14 @@ p.pVal= 2;
 p.pComment= 'in sec; minimum time between rewards (manditory deactivation of ports)';
 paramArray = [paramArray; p];
 
-p.pName= 'blockRange';
+p.pName= 'blockRangeMin';
 p.pVal= 1000;
-p.pComment= 'interval from which block sizes will be generated';
+p.pComment= 'minumum block size';
+paramArray = [paramArray; p];
+
+p.pName= 'blockRangeMax';
+p.pVal= 1000;
+p.pComment= 'maximum block size';
 paramArray = [paramArray; p];
 
 

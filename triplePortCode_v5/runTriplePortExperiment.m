@@ -99,12 +99,11 @@ else
 end
 
 
-%% run trials - haven't solved this.
+%% run trials
 global currBlockReward blockRange currBlockSize
 currBlockReward = 0;
-blockRange = p.blockRange;
+blockRange = [p.blockRangeMin:p.blockRangeMax];
 currBlockSize = randi([min(blockRange),max(blockRange)]);
-%currBlockSize = exprnd(blockSize);
 display(currBlockSize)
 
 global pokeHistory pokeCount
@@ -340,6 +339,8 @@ if currBlockReward >= currBlockSize
     p.leftRewardProb
     display('Right Reward Prob:')
     p.rightRewardProb
+    display('Current Block Size:')
+    currBlockSize
 end
 
 
