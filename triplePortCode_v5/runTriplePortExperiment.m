@@ -4,15 +4,7 @@ global arduinoConnection arduinoPort
 global arduinoMessageString
 
 global p % parameter structure
-
-%% load parameters from file
-parameterFileName = '';
-if (nargin > 0) % check for parameter file path as input argument
-    parameterFileName = varargin{1};
-end
-[p, parameterFileName] = loadParametersFile(parameterFileName);
-
-
+global info % structure containing mouse name and folder to be saved in
 %% Setup
 
 % cleanup routine to be executed even if this function is terminated early
@@ -22,13 +14,12 @@ finishup = onCleanup(@triplePortCleanup);
 % different experiments)
 rng('shuffle');
 
-% set up logging
-[pathstr,name,ext] = fileparts(parameterFileName);
-% default name/path for log files is the same as paramters file
-% but replace 'param(s)'/'parameters(s)' with 'Log' in file name
-name = regexprep(name,'[Pp]aram(eter)?(s)?(?=$|[^a-z])','Log');
-logFileName = fullfile(pathstr,name);
-setupLogging(logFileName);
+%gets the mouse's name
+mouseName = info.mouseName;
+%creates the log file name
+mouseLog = strcat(mouseName,'_log');
+%sets up the logging for mouseLog
+setupLogging(mouseLog);
 
 
 % log all paramters and inital values
@@ -65,13 +56,13 @@ fprintf('\n')
 %% setup ports/arduino
 global centerPort rightPort leftPort
 
-centerPort = NosePort(5,13);
-centerPort.setLEDPin(8);
+centerPort = NosePort(7,13);
+centerPort.setLEDPin(4);
 centerPort.deactivate();
 centerPort.noseInFunc = @centerPortPokeFunc;
 logValue('center port ID', centerPort.portID);
 
-rightPort = NosePort(7,4);
+rightPort = NosePort(8,3);
 rightPort.setLEDPin(9);
 rightPort.setRewardDuration(p.rewardDurationRight);
 rightPort.setToSingleRewardMode();
@@ -125,7 +116,9 @@ h = initializestatsfig(cumstats);
 
 
 %% run the program.....
-while true
+%runs as long as info.running has not been set to false via the Stop
+%Experiment button
+while info.running
     pause(0.1)
         % actively probe whether or note enough time has elapsed to start a
     % new trial. If so, turn on the LED>
@@ -133,7 +126,7 @@ while true
         centerPort.ledOn();
     end
 end
-
+close 'Stats Figure'
 end
 
 %% Subfunctions
@@ -377,18 +370,29 @@ AllNosePorts = {};
 clearPorts(); %clear nose ports
 
 % prompt user to select directory to save pokeHistory
-prompt = 'Save pokeHistory and stats? (y/n): ';
-prompt_ans = input(prompt,'s');
-if strcmpi(prompt_ans,'n')
-else
+global info
+global p
+%if user chose to save the data
+if info.save == 1
     global pokeHistory stats
-    folderName = uigetdir;
+    folderName = info.folderName;
     cd(folderName);
     currDay = datestr(date);
     save(strcat('pokeHistory',currDay,'.mat'),'pokeHistory');
     save(strcat('stats',currDay,'.mat'),'stats');
     savefig('stats.fig');
+   %properly formats the parameters and saves them in the same format as
+   %the log
+    parameters = strcat(info.mouseName,'_parameters_');
+    baseName = [parameters, '_', int2str(yyyymmdd(datetime)), '_'];
+    fileCounter = 1;
+    fName = [baseName, int2str(fileCounter), '.mat'];
+    while (exist(fName, 'file'))
+        fileCounter = fileCounter + 1;
+        fName = [baseName, int2str(fileCounter), '.mat'];
+    end
+    save(fName,'p');
 end
-close all
+close 'Stats Figure'
 end
 

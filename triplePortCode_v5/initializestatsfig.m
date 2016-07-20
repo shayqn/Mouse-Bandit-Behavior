@@ -3,8 +3,7 @@ function h = initializestatsfig(stats)
 %   Detailed explanation goes here
 
 XPLOT = 1;
-
-figure
+figure('Name','Stats Figure','NumberTitle','off')
 subplot(3,1,1)
 h(1) = plot(XPLOT,stats.trials.left);
 h(1).XDataSource = 'XPLOT';
