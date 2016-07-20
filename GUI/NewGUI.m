@@ -22,7 +22,7 @@ function varargout = NewGUI(varargin)
 
 % Edit the above text to modify the response to help NewGUI
 
-% Last Modified by GUIDE v2.5 19-Jul-2016 14:51:28
+% Last Modified by GUIDE v2.5 20-Jul-2016 10:25:16
 
 % Begin initialization code - DO NOT EDIT
 %NOTE: THE ONLY REAL CHANGE IS IN THE LAST FUNCTION... THE BUTTON PUSHED
@@ -68,6 +68,9 @@ guidata(hObject, handles);
  set(handles.stopExperiment,'enable','off');
  set(handles.save,'enable','off');
  set(handles.save,'Value',1)
+ global calib
+ calib.left = 4500;
+ calib.right = 4500;
 
 
 
@@ -369,6 +372,10 @@ function runExperiment_Callback(hObject, eventdata, handles)
         set(handles.stopExperiment,'enable','on');
         set(handles.save,'enable','on');
         set(handles.reset,'enable','off');
+        set(handles.leftCalibDuration,'enable','off');
+        set(handles.rightCalibDuration,'enable','off');
+        set(handles.getLeftCalibDuration,'enable','off');
+        set(handles.getRightCalibDuration,'enable','off');
         runTriplePortExperiment
 
     end
@@ -467,8 +474,80 @@ function reset_Callback(hObject, eventdata, handles)
     set(handles.mouseName,'String','');
     set(handles.folderPath,'String','Default Folder Path');
     set(handles.save,'Value',1);
-    set(handles.reset,'enable','on')
+    set(handles.reset,'enable','on');
+    set(handles.leftCalibDuration,'enable','on');
+    set(handles.rightCalibDuration,'enable','on');
+    set(handles.getLeftCalibDuration,'enable','on');
+    set(handles.getRightCalibDuration,'enable','on');
+    set(handles.leftCalibDuration,'String','4500');
+    set(handles.rightCalibDuration,'String','4500');
+    global calib
+    calib.left = 4500;
+    calib.right = 4500;
 
 % hObject    handle to reset (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in getLeftCalibDuration.
+function getLeftCalibDuration_Callback(hObject, eventdata, handles)
+global calib
+% hObject    handle to getLeftCalibDuration (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+calib.left = str2double(get(handles.leftCalibDuration, 'String'));
+
+% --- Executes on button press in getRightCalibDuration.
+function getRightCalibDuration_Callback(hObject, eventdata, handles)
+% hObject    handle to getRightCalibDuration (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global calib
+calib.right = str2double(get(handles.rightCalibDuration, 'String'));
+
+
+
+function leftCalibDuration_Callback(hObject, eventdata, handles)
+% hObject    handle to leftCalibDuration (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of leftCalibDuration as text
+%        str2double(get(hObject,'String')) returns contents of leftCalibDuration as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function leftCalibDuration_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to leftCalibDuration (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function rightCalibDuration_Callback(hObject, eventdata, handles)
+% hObject    handle to rightCalibDuration (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of rightCalibDuration as text
+%        str2double(get(hObject,'String')) returns contents of rightCalibDuration as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function rightCalibDuration_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to rightCalibDuration (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
