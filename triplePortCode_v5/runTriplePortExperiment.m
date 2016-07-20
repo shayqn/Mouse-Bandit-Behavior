@@ -91,6 +91,16 @@ end
 
 
 %% run trials
+global numBlocks
+numBlocks = struct;
+numBlocks.left = 0;
+numBlocks.right = 0;
+if p.rightRewardProb >= p.leftRewardProb
+    numBlocks.right = 1;
+else
+    numBlocks.left = 1;
+end
+
 global currBlockReward blockRange currBlockSize
 currBlockReward = 0;
 blockRange = [p.blockRangeMin:p.blockRangeMax];
@@ -126,7 +136,6 @@ while info.running
         centerPort.ledOn();
     end
 end
-close 'Stats Figure'
 end
 
 %% Subfunctions
@@ -223,6 +232,20 @@ pokeHistory(pokeCount).REWARD = 0;
 
 %update stats and refresh figures
 stats = updatestats(stats,pokeHistory(pokeCount),pokeCount);
+global handlesCopy
+leftRewards = sum(stats.rewards.left);
+rightRewards = sum(stats.rewards.right);
+totalRewards = leftRewards + rightRewards;
+leftTrials = sum(stats.trials.left)/2;
+rightTrials = sum(stats.trials.right)/2;
+totalTrials = leftTrials + rightTrials;
+global numBlocks
+leftBlocks = numBlocks.left;
+rightBlocks = numBlocks.right;
+totalBlocks = leftBlocks+rightBlocks;
+data = [leftRewards, rightRewards, totalRewards; leftTrials, rightTrials, ...
+    totalTrials;leftBlocks,rightBlocks,totalBlocks];
+set(handlesCopy.statsTable,'data',data);
 cumstats = cumsumstats(stats);
 updatestatsfig(cumstats,h,pokeCount);
 
@@ -333,6 +356,12 @@ if currBlockReward >= currBlockSize
     display('Right Reward Prob:')
     p.rightRewardProb
     display('Current Block Size:')
+    global numBlocks
+    if p.rightRewardProb >= p.leftRewardProb
+        numBlocks.right = numBlocks.right + 1;
+    else
+        numBlocks.left = numBlocks.left + 1;
+    end
     currBlockSize
 end
 
@@ -383,7 +412,7 @@ if info.save == 1
     savefig('stats.fig');
    %properly formats the parameters and saves them in the same format as
    %the log
-    parameters = strcat(info.mouseName,'_parameters_');
+    parameters = strcat(info.mouseName,'_parameters');
     baseName = [parameters, '_', int2str(yyyymmdd(datetime)), '_'];
     fileCounter = 1;
     fName = [baseName, int2str(fileCounter), '.mat'];

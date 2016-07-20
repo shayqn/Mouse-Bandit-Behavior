@@ -22,7 +22,7 @@ function varargout = NewGUI(varargin)
 
 % Edit the above text to modify the response to help NewGUI
 
-% Last Modified by GUIDE v2.5 20-Jul-2016 10:25:16
+% Last Modified by GUIDE v2.5 20-Jul-2016 14:08:00
 
 % Begin initialization code - DO NOT EDIT
 %NOTE: THE ONLY REAL CHANGE IS IN THE LAST FUNCTION... THE BUTTON PUSHED
@@ -30,11 +30,11 @@ function varargout = NewGUI(varargin)
 %DEPENDENT ON WHAT WAS INPUTTED TO THE TEXT-EDIT SPOTS
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @NewGUI_OpeningFcn, ...
-                   'gui_OutputFcn',  @NewGUI_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @NewGUI_OpeningFcn, ...
+    'gui_OutputFcn',  @NewGUI_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -60,22 +60,25 @@ handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
-
+global handlesCopy
+handlesCopy = handles;
 % UIWAIT makes NewGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 %initially disables the Stop Experiment Button and save checkmark.
 %also initially sets the checkmark to checked
- set(handles.stopExperiment,'enable','off');
- set(handles.save,'enable','off');
- set(handles.save,'Value',1)
- global calib
- calib.left = 4500;
- calib.right = 4500;
+set(handles.stopExperiment,'enable','off');
+set(handles.save,'enable','off');
+set(handles.save,'Value',1)
+global calib
+calib.left = 4500;
+calib.right = 4500;
+set(handles.statsTable,'enable','off');
+
 
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = NewGUI_OutputFcn(hObject, eventdata, handles) 
+function varargout = NewGUI_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -324,61 +327,62 @@ function runExperiment_Callback(hObject, eventdata, handles)
 %property of the parameters struct, which has been instantiated as a global
 %variable
 %LEDDuringRewardWindow is automatically set to 1
-    global p
-    p = struct;
-    p.centerPokeTrigger = str2double(get(handles.centerPokeTrigger, 'String'));
-    p.centerPokeRewardWindow = str2double(get(handles.centerPokeRewardWindow, 'String'));
-    p.ledDuringRewardWindow = 1;
-    p.leftRewardProb = str2double(get(handles.leftRewardProb, 'String'));
-    p.rightRewardProb = str2double(get(handles.rightRewardProb, 'String'));
-    p.rewardDurationRight = str2double(get(handles.rewardDurationRight, 'String'));
-    p.rewardDurationLeft = str2double(get(handles.rewardDurationLeft, 'String'));
-    p.minInterTrialInterval = str2double(get(handles.minInterTrialInterval, 'String'));
-    p.blockRangeMin = str2double(get(handles.blockRangeMin, 'String'));
-    p.blockRangeMax = str2double(get(handles.blockRangeMax, 'String'));
-    %creates a global info struct to store the mouse's name and the folder's
-    %path as inputted by the user. sets the running field to true and the
-    %save field to NaN
-    global info
-    info = struct;
-    info.mouseName = lower(get(handles.mouseName, 'String'));
-    info.folderName = get(handles.folderPath,'String');
-    info.running = true;
-    info.save = NaN;
-    ready = true;
+global p
+p = struct;
+p.centerPokeTrigger = str2double(get(handles.centerPokeTrigger, 'String'));
+p.centerPokeRewardWindow = str2double(get(handles.centerPokeRewardWindow, 'String'));
+p.ledDuringRewardWindow = 1;
+p.leftRewardProb = str2double(get(handles.leftRewardProb, 'String'));
+p.rightRewardProb = str2double(get(handles.rightRewardProb, 'String'));
+p.rewardDurationRight = str2double(get(handles.rewardDurationRight, 'String'));
+p.rewardDurationLeft = str2double(get(handles.rewardDurationLeft, 'String'));
+p.minInterTrialInterval = str2double(get(handles.minInterTrialInterval, 'String'));
+p.blockRangeMin = str2double(get(handles.blockRangeMin, 'String'));
+p.blockRangeMax = str2double(get(handles.blockRangeMax, 'String'));
+%creates a global info struct to store the mouse's name and the folder's
+%path as inputted by the user. sets the running field to true and the
+%save field to NaN
+global info
+info = struct;
+info.mouseName = lower(get(handles.mouseName, 'String'));
+info.folderName = get(handles.folderPath,'String');
+info.running = true;
+info.save = NaN;
+ready = true;
 
-    %makes sure the user enters a mouse name and a directory
-    if isempty(info.mouseName) || strcmp(info.folderName,'Default Folder Path') || strcmp(info.folderName,'0')
-        ready = false;
-        e=errordlg('Must input the mouse"s name and the directory in which the session"s data will be saved', 'INPUTS REQUIRED')
-        %DIALOG BOX HERE
-    end
-    %if everything checks out, everything is disabled but the start and
-    %save objects, and the experiment is run
-    if ready
-        set(handles.centerPokeTrigger, 'enable', 'off');
-        set(handles.centerPokeRewardWindow, 'enable', 'off');
-        set(handles.leftRewardProb, 'enable', 'off');
-        set(handles.rightRewardProb, 'enable', 'off');
-        set(handles.rewardDurationRight, 'enable', 'off');
-        set(handles.rewardDurationLeft, 'enable', 'off');
-        set(handles.minInterTrialInterval, 'enable', 'off');
-        set(handles.blockRangeMin, 'enable', 'off');
-        set(handles.blockRangeMax, 'enable', 'off');
-        set(handles.mouseName, 'enable', 'off');
-        set(handles.folderPath, 'enable', 'off');
-        set(handles.chooseFolder, 'enable', 'off');
-        set(handles.runExperiment,'enable','off');
-        set(handles.stopExperiment,'enable','on');
-        set(handles.save,'enable','on');
-        set(handles.reset,'enable','off');
-        set(handles.leftCalibDuration,'enable','off');
-        set(handles.rightCalibDuration,'enable','off');
-        set(handles.getLeftCalibDuration,'enable','off');
-        set(handles.getRightCalibDuration,'enable','off');
-        runTriplePortExperiment
-
-    end
+%makes sure the user enters a mouse name and a directory
+if isempty(info.mouseName) || strcmp(info.folderName,'Default Folder Path') || strcmp(info.folderName,'0')
+    ready = false;
+    e=errordlg('Must input the mouse"s name and the directory in which the session"s data will be saved', 'INPUTS REQUIRED')
+    %DIALOG BOX HERE
+end
+%if everything checks out, everything is disabled but the start and
+%save objects, and the experiment is run
+if ready
+    set(handles.centerPokeTrigger, 'enable', 'off');
+    set(handles.centerPokeRewardWindow, 'enable', 'off');
+    set(handles.leftRewardProb, 'enable', 'off');
+    set(handles.rightRewardProb, 'enable', 'off');
+    set(handles.rewardDurationRight, 'enable', 'off');
+    set(handles.rewardDurationLeft, 'enable', 'off');
+    set(handles.minInterTrialInterval, 'enable', 'off');
+    set(handles.blockRangeMin, 'enable', 'off');
+    set(handles.blockRangeMax, 'enable', 'off');
+    set(handles.mouseName, 'enable', 'off');
+    set(handles.folderPath, 'enable', 'off');
+    set(handles.chooseFolder, 'enable', 'off');
+    set(handles.runExperiment,'enable','off');
+    set(handles.stopExperiment,'enable','on');
+    set(handles.save,'enable','on');
+    set(handles.reset,'enable','off');
+    set(handles.leftCalibDuration,'enable','off');
+    set(handles.rightCalibDuration,'enable','off');
+    set(handles.getLeftCalibDuration,'enable','off');
+    set(handles.getRightCalibDuration,'enable','off');
+    set(handles.statsTable,'enable','on');
+    runTriplePortExperiment
+    
+end
 
 % --- Executes on button press in stopExperiment.
 function stopExperiment_Callback(hObject, eventdata, handles)
@@ -430,11 +434,11 @@ function chooseFolder_Callback(hObject, eventdata, handles)
 % hObject    handle to chooseFolder (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    folder = uigetdir;
-    set(handles.folderPath, 'String', folder);
+folder = uigetdir;
+set(handles.folderPath, 'String', folder);
 
 
-   
+
 % --- Executes on button press in save.
 function save_Callback(hObject, eventdata, handles)
 % hObject    handle to save (see GCBO)
@@ -446,44 +450,46 @@ function save_Callback(hObject, eventdata, handles)
 
 % --- Executes on button press in reset.
 function reset_Callback(hObject, eventdata, handles)
-    %resets all handles to their intial state
-    set(handles.centerPokeTrigger, 'enable', 'on');
-    set(handles.centerPokeRewardWindow, 'enable', 'on');
-    set(handles.leftRewardProb, 'enable', 'on');
-    set(handles.rightRewardProb, 'enable', 'on');
-    set(handles.rewardDurationRight, 'enable', 'on');
-    set(handles.rewardDurationLeft, 'enable', 'on');
-    set(handles.minInterTrialInterval, 'enable', 'on');
-    set(handles.blockRangeMin, 'enable', 'on');
-    set(handles.blockRangeMax, 'enable', 'on');
-    set(handles.mouseName, 'enable', 'on');
-    set(handles.folderPath, 'enable', 'on');
-    set(handles.chooseFolder, 'enable', 'on');
-    set(handles.runExperiment, 'enable', 'on');
-    set(handles.stopExperiment,'enable','off');
-    set(handles.save,'enable','off');
-    set(handles.centerPokeTrigger, 'String','1');
-    set(handles.centerPokeRewardWindow, 'String','2');
-    set(handles.leftRewardProb, 'String','0.2');
-    set(handles.rightRewardProb, 'String','0.8');
-    set(handles.rewardDurationRight, 'String', '40');
-    set(handles.rewardDurationLeft, 'String', '45');
-    set(handles.minInterTrialInterval, 'String', '1');
-    set(handles.blockRangeMin, 'String', '50');
-    set(handles.blockRangeMax, 'String', '50');
-    set(handles.mouseName,'String','');
-    set(handles.folderPath,'String','Default Folder Path');
-    set(handles.save,'Value',1);
-    set(handles.reset,'enable','on');
-    set(handles.leftCalibDuration,'enable','on');
-    set(handles.rightCalibDuration,'enable','on');
-    set(handles.getLeftCalibDuration,'enable','on');
-    set(handles.getRightCalibDuration,'enable','on');
-    set(handles.leftCalibDuration,'String','4500');
-    set(handles.rightCalibDuration,'String','4500');
-    global calib
-    calib.left = 4500;
-    calib.right = 4500;
+%resets all handles to their intial state
+set(handles.centerPokeTrigger, 'enable', 'on');
+set(handles.centerPokeRewardWindow, 'enable', 'on');
+set(handles.leftRewardProb, 'enable', 'on');
+set(handles.rightRewardProb, 'enable', 'on');
+set(handles.rewardDurationRight, 'enable', 'on');
+set(handles.rewardDurationLeft, 'enable', 'on');
+set(handles.minInterTrialInterval, 'enable', 'on');
+set(handles.blockRangeMin, 'enable', 'on');
+set(handles.blockRangeMax, 'enable', 'on');
+set(handles.mouseName, 'enable', 'on');
+set(handles.folderPath, 'enable', 'on');
+set(handles.chooseFolder, 'enable', 'on');
+set(handles.runExperiment, 'enable', 'on');
+set(handles.stopExperiment,'enable','off');
+set(handles.save,'enable','off');
+set(handles.centerPokeTrigger, 'String','1');
+set(handles.centerPokeRewardWindow, 'String','2');
+set(handles.leftRewardProb, 'String','0.2');
+set(handles.rightRewardProb, 'String','0.8');
+set(handles.rewardDurationRight, 'String', '40');
+set(handles.rewardDurationLeft, 'String', '45');
+set(handles.minInterTrialInterval, 'String', '1');
+set(handles.blockRangeMin, 'String', '50');
+set(handles.blockRangeMax, 'String', '50');
+set(handles.mouseName,'String','');
+set(handles.folderPath,'String','Default Folder Path');
+set(handles.save,'Value',1);
+set(handles.reset,'enable','on');
+set(handles.leftCalibDuration,'enable','on');
+set(handles.rightCalibDuration,'enable','on');
+set(handles.getLeftCalibDuration,'enable','on');
+set(handles.getRightCalibDuration,'enable','on');
+set(handles.leftCalibDuration,'String','4500');
+set(handles.rightCalibDuration,'String','4500');
+global calib
+calib.left = 4500;
+calib.right = 4500;
+set(handles.statsTable,'data',[0,0,0;0,0,0;0,0,0]);
+set(handles.statsTable,'enable','off');
 
 % hObject    handle to reset (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -551,3 +557,4 @@ function rightCalibDuration_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
