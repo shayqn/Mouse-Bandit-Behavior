@@ -30,7 +30,7 @@ classdef NosePort  < handle
             AllNosePorts{newPortID} = obj;
         end
 
-                function setToSingleRewardMode(obj)
+        function setToSingleRewardMode(obj)
             obj.arduinoCommand('S',1);
         end
         function setToMutliRewardMode(obj)
@@ -45,7 +45,9 @@ classdef NosePort  < handle
         function setRewardDuration(obj, duration)
             obj.arduinoCommand('D',duration);
         end
-
+        function deliverReward(obj)
+            obj.arduinoCommand('R', 0);
+        end
         function noseIn(obj)
             if isa(obj.noseInFunc,'function_handle')
                 feval(obj.noseInFunc, obj.portID);
