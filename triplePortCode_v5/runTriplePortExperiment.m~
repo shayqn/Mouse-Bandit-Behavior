@@ -136,7 +136,6 @@ while info.running
         centerPort.ledOn();
     end
 end
-triplePortCleanup();
 end
 
 %% Subfunctions
@@ -408,15 +407,16 @@ if info.save == 1
     folderName = info.folderName;
     cd(folderName);
     currDay = datestr(date);
-    %save pokeHistory and stats variables
+    %
     save(strcat('pokeHistory',currDay,'.mat'),'pokeHistory');
     save(strcat('stats',currDay,'.mat'),'stats');
     figHandles = findobj('Type','figure');
+    
     % now that we have multiple figures (ie. the gui) we need to loop
     % through all the figure handles, find the one that is that stats fig,
     % and save it to the current directory.
     for i = 1:size(figHandles,1)
-        if strcmpi('Stats Figure',figHandles(i).Name)
+        if strcmpi('Stats Figure',figHandles(i).name)
             savefig(figHandles(i),'stats.fig');
         end
     end

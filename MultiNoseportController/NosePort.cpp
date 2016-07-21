@@ -194,7 +194,7 @@ void NosePort::interpretCommand(String message) {
     } else if (command == 'S') { // S: set single-reward state
       nosePortList[nosePortNum-1]->setSingleReward(arg2);
     } else if (command == 'R') { // R: deliver reward
-      nosePortList[nosePortNum-1]->deliverRewarwd();
+      nosePortList[nosePortNum-1]->deliverReward();
     } else if (command == 'L') { // L: set LED pin
       nosePortList[nosePortNum-1]->setLEDPin(arg2);
     } else if (command == 'O') { // L: turn LED on

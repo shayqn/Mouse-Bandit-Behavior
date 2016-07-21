@@ -491,12 +491,11 @@ set(handles.getRightCalibDuration,'enable','on');
 set(handles.leftCalibDuration,'String','45');
 set(handles.rightCalibDuration,'String','45');
 set(handles.numIterations,'String','100');
-set(handles.numIterations,'enable','off');
 set(handles.rightCalibDuration,'enable','off');
 set(handles.leftCalibDuration,'enable','off');
 set(handles.getLeftCalibDuration,'enable','off');
 set(handles.getRightCalibDuration,'enable','off');
-set(handles.connectToArduino,'enable','on');
+set(handles.connectToArduino,'enable','off');
 
 global calib
 calib.left = 45;
@@ -514,10 +513,6 @@ function getLeftCalibDuration_Callback(hObject, eventdata, handles)
 % hObject    handle to getLeftCalibDuration (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% gets the length of the calibration reward duration for the left side as
-% inputted by the user and disperses it for the number of iterations the
-% user inputted, pausing 0.1 seconds between each reward
-
 global calib
 calib.left = str2double(get(handles.leftCalibDuration, 'String'));
 global leftPort 
@@ -533,9 +528,6 @@ function getRightCalibDuration_Callback(hObject, eventdata, handles)
 % hObject    handle to getRightCalibDuration (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% gets the length of the calibration reward duration for the right side as
-% inputted by the user and disperses it for the number of iterations the
-% user inputted, pausing 0.1 seconds between each reward
 global calib
 calib.right = str2double(get(handles.rightCalibDuration, 'String'));
 global rightPort 
@@ -592,9 +584,6 @@ end
 
 % --- Executes on button press in connectToArduino.
 function connectToArduino_Callback(hObject, eventdata, handles)
-%establishes a connection with the arduino to calibrate the number of water
-%dispensed by the solenoids by setting up a temporary calibration_log_ file
-%that is then deleted at the end of the function
 global arduinoConnection arduinoPort
 global arduinoMessageString
 arduinoMessageString = '';
