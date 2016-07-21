@@ -22,7 +22,7 @@ mouseLog = strcat(mouseName,'_log');
 setupLogging(mouseLog);
 
 
-% log all paramters and inital values
+%% log all paramters and inital values
 fn = fieldnames(p);
 for i=1:length(fn)
     fName = fn{i};
@@ -33,7 +33,7 @@ logValue('RNG Seed', rngState.Seed);
 logValue('RNG Type', rngState.Type);
 
 
-% set up Arduino
+%% set up Arduino
 arduinoMessageString = '';
 clearPorts();
 arduinoPortNum = findArduinoPort();
