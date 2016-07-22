@@ -56,13 +56,13 @@ fprintf('\n')
 %% setup ports/arduino
 global centerPort rightPort leftPort
 
-centerPort = NosePort(7,13);
-centerPort.setLEDPin(4);
+centerPort = NosePort(5,13);
+centerPort.setLEDPin(8);
 centerPort.deactivate();
 centerPort.noseInFunc = @centerPortPokeFunc;
 logValue('center port ID', centerPort.portID);
 
-rightPort = NosePort(8,5);
+rightPort = NosePort(7,4);
 rightPort.setLEDPin(9);
 rightPort.setRewardDuration(p.rewardDurationRight);
 rightPort.setToSingleRewardMode();

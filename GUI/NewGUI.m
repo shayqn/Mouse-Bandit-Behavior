@@ -358,7 +358,7 @@ ready = true;
 %makes sure the user enters a mouse name and a directory
 if isempty(info.mouseName) || strcmp(info.folderName,'Default Folder Path') || strcmp(info.folderName,'0')
     ready = false;
-    e=errordlg('Must input the mouse"s name and the directory in which the session"s data will be saved', 'INPUTS REQUIRED')
+    errordlg('Must input the mouse"s name and the directory in which the session"s data will be saved', 'INPUTS REQUIRED')
     %DIALOG BOX HERE
 end
 %if everything checks out, everything is disabled but the start and
@@ -380,6 +380,7 @@ if ready
     set(handles.stopExperiment,'enable','on');
     set(handles.save,'enable','on');
     set(handles.reset,'enable','off');
+    set(handles.connectToArduino,'enable','off');
     set(handles.leftCalibDuration,'enable','off');
     set(handles.rightCalibDuration,'enable','off');
     set(handles.getLeftCalibDuration,'enable','off');
@@ -400,7 +401,7 @@ function stopExperiment_Callback(hObject, eventdata, handles)
 global info
 info.save = get(handles.save,'Value');
 if ~info.save
-    answer = lower(inputdlg('Do you want to save stats and poke history?','SAVE?'))
+    answer = lower(inputdlg('Do you want to save data for this session?','SAVE?'));
     if ~strcmp(answer,'n') && ~strcmp(answer,'no')
         set(handles.save,'Value',1);
         info.save = 1;
@@ -624,7 +625,7 @@ leftPort.setLEDPin(10);
 leftPort.setRewardDuration(calib.left);
 leftPort.setToSingleRewardMode();
 global rightPort
-rightPort = NosePort(8,5);
+rightPort = NosePort(7,4);
 rightPort.setLEDPin(9);
 rightPort.setRewardDuration(calib.right);
 rightPort.setToSingleRewardMode();
@@ -633,8 +634,10 @@ set(handles.getRightCalibDuration,'enable','on');
 set(handles.leftCalibDuration,'enable','on');
 set(handles.rightCalibDuration,'enable','on');
 set(handles.numIterations,'enable','on');
-fileToDel = dir('calibration_log*');
-delete(fileToDel.name);
+global logFileID
+%fclose(logFileID);
+%fileToDel = dir('calibration_log*');
+%delete(fileToDel.name);
 set(handles.connectToArduino,'enable','off');
 
 
