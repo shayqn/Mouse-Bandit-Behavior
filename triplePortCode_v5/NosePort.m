@@ -46,7 +46,7 @@ classdef NosePort  < handle
             obj.arduinoCommand('D',duration);
         end
         function deliverReward(obj)
-            obj.arduinoCommand('R', 0);
+            obj.arduinoCommand('R',0);
         end
         function noseIn(obj)
             if isa(obj.noseInFunc,'function_handle')

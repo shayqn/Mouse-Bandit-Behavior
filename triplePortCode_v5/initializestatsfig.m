@@ -1,7 +1,6 @@
 function h = initializestatsfig(stats)
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here
-
 XPLOT = 1;
 figure('Name','Stats Figure','NumberTitle','off')
 subplot(3,1,1)
@@ -38,6 +37,5 @@ h(7).XDataSource = 'XPLOT';
 h(7).YDataSource = 'stats.errors.center';
 title('Errors');
 legend('Left Port','Right Port','Center Port')
-
 end
 

@@ -358,7 +358,7 @@ ready = true;
 %makes sure the user enters a mouse name and a directory
 if isempty(info.mouseName) || strcmp(info.folderName,'Default Folder Path') || strcmp(info.folderName,'0')
     ready = false;
-    errordlg('Must input the mouse"s name and the directory in which the session"s data will be saved', 'INPUTS REQUIRED')
+    e=errordlg('Must input the mouse"s name and the directory in which the session"s data will be saved', 'INPUTS REQUIRED')
     %DIALOG BOX HERE
 end
 %if everything checks out, everything is disabled but the start and
@@ -380,7 +380,6 @@ if ready
     set(handles.stopExperiment,'enable','on');
     set(handles.save,'enable','on');
     set(handles.reset,'enable','off');
-    set(handles.connectToArduino,'enable','off');
     set(handles.leftCalibDuration,'enable','off');
     set(handles.rightCalibDuration,'enable','off');
     set(handles.getLeftCalibDuration,'enable','off');
@@ -401,7 +400,7 @@ function stopExperiment_Callback(hObject, eventdata, handles)
 global info
 info.save = get(handles.save,'Value');
 if ~info.save
-    answer = lower(inputdlg('Do you want to save data for this session?','SAVE?'));
+    answer = lower(inputdlg('Do you want to save stats and poke history?','SAVE?'))
     if ~strcmp(answer,'n') && ~strcmp(answer,'no')
         set(handles.save,'Value',1);
         info.save = 1;
@@ -492,12 +491,11 @@ set(handles.getRightCalibDuration,'enable','on');
 set(handles.leftCalibDuration,'String','45');
 set(handles.rightCalibDuration,'String','45');
 set(handles.numIterations,'String','100');
-set(handles.numIterations,'enable','off');
 set(handles.rightCalibDuration,'enable','off');
 set(handles.leftCalibDuration,'enable','off');
 set(handles.getLeftCalibDuration,'enable','off');
 set(handles.getRightCalibDuration,'enable','off');
-set(handles.connectToArduino,'enable','on');
+set(handles.connectToArduino,'enable','off');
 
 global calib
 calib.left = 45;
@@ -515,10 +513,6 @@ function getLeftCalibDuration_Callback(hObject, eventdata, handles)
 % hObject    handle to getLeftCalibDuration (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% gets the length of the calibration reward duration for the left side as
-% inputted by the user and disperses it for the number of iterations the
-% user inputted, pausing 0.1 seconds between each reward
-
 global calib
 calib.left = str2double(get(handles.leftCalibDuration, 'String'));
 global leftPort 
@@ -534,9 +528,6 @@ function getRightCalibDuration_Callback(hObject, eventdata, handles)
 % hObject    handle to getRightCalibDuration (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% gets the length of the calibration reward duration for the right side as
-% inputted by the user and disperses it for the number of iterations the
-% user inputted, pausing 0.1 seconds between each reward
 global calib
 calib.right = str2double(get(handles.rightCalibDuration, 'String'));
 global rightPort 
@@ -593,9 +584,6 @@ end
 
 % --- Executes on button press in connectToArduino.
 function connectToArduino_Callback(hObject, eventdata, handles)
-%establishes a connection with the arduino to calibrate the number of water
-%dispensed by the solenoids by setting up a temporary calibration_log_ file
-%that is then deleted at the end of the function
 global arduinoConnection arduinoPort
 global arduinoMessageString
 arduinoMessageString = '';
@@ -625,7 +613,7 @@ leftPort.setLEDPin(10);
 leftPort.setRewardDuration(calib.left);
 leftPort.setToSingleRewardMode();
 global rightPort
-rightPort = NosePort(7,4);
+rightPort = NosePort(8,5);
 rightPort.setLEDPin(9);
 rightPort.setRewardDuration(calib.right);
 rightPort.setToSingleRewardMode();
@@ -634,10 +622,8 @@ set(handles.getRightCalibDuration,'enable','on');
 set(handles.leftCalibDuration,'enable','on');
 set(handles.rightCalibDuration,'enable','on');
 set(handles.numIterations,'enable','on');
-global logFileID
-%fclose(logFileID);
-%fileToDel = dir('calibration_log*');
-%delete(fileToDel.name);
+fileToDel = dir('calibration_log*');
+delete(fileToDel.name);
 set(handles.connectToArduino,'enable','off');
 
 
