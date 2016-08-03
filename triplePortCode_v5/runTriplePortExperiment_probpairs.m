@@ -126,11 +126,15 @@ h = initializestatsfig(cumstats);
 
 %% set the probability pairs
 global probPairs probOrder blockNum
-probPairs = [0.8,0.2;0.5,0.8;0.7,0.3;0,1;20,50];
+probPairs = [0.8,0.2;0.5,0.8;0.7,0.3;0,1;0.5,0.2];
+%I want to make sure to cycle through all the pairs at least once
 probOrder1 = randperm(length(probPairs));
 probOrder2 = randperm(length(probPairs));
 probOrder = [probOrder1,probOrder2];
 blockNum = 1;
+% set first reward probabilities
+p.leftRewardProb = probPairs(probOrder(blockNum),1);
+p.rightRewardProb = probPairs(probOrder(blockNum),2);
 
 %% run the program.....
 %runs as long as info.running has not been set to false via the Stop
