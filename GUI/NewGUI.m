@@ -386,7 +386,9 @@ if ready
     set(handles.getLeftCalibDuration,'enable','off');
     set(handles.getRightCalibDuration,'enable','off');
     set(handles.statsTable,'enable','on');
-    runTriplePortExperiment
+    % RUN THE EXPERIMENT
+    % LINE BELOW CHANGES CORRESPONDING TO WHAT EXP YOU WANT TO DO
+    runTriplePortExperiment_probpairs
     
 end
 
