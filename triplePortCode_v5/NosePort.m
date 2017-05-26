@@ -8,12 +8,17 @@ classdef NosePort  < handle
         solenoidPin = 0;
         ledPin = 0;
         ledState = 0;
+        laserPin = 0;
+        laserActive = 0;
         noseInFunc = [];
         noseOutFunc = [];
         rewardFunc = [];
+        laserOnFunc = [];
+        laserOffFunc = [];
     end
 
     methods
+        %% constructor
         function obj = NosePort(beambreakPin, solenoidPin)
             global newPortID
             newPortID = 0;
@@ -30,6 +35,7 @@ classdef NosePort  < handle
             AllNosePorts{newPortID} = obj;
         end
 
+        %% Reward & nose detection methods
         function setToSingleRewardMode(obj)
             obj.arduinoCommand('S',1);
         end
@@ -63,6 +69,8 @@ classdef NosePort  < handle
                 feval(obj.rewardFunc,obj.portID);
             end
         end
+
+        %% LED methods
         function setLEDPin(obj, pin)
             obj.ledPin = pin;
             obj.arduinoCommand('L', pin);
@@ -82,7 +90,41 @@ classdef NosePort  < handle
             end
         end
 
+        %% Laser methods
+        function setLaserPin(obj, pin)
+            obj.laserPin = pin;
+            obj.arduinoCommand('P', pin);
+        end
+        function setLaserDelay(obj, delay)
+            obj.arduinoCommand('Y', delay);
+        end
+        function setLaserStimDuration(obj, duration)
+            obj.arduinoCommand('T', duration);
+        end
+        function setLaserPulseDuration(obj, pulseDur)
+            obj.arduinoCommand('U', pulseDur);
+        end
+        function setLaserPulsePeriod(obj, pulsePeriod)
+            obj.arduinoCommand('I', pulsePeriod);
+        end
+        function activateLaser(obj)
+            obj.arduinoCommand('V', 1);
+        end
+        function deactivateLaser(obj)
+            obj.arduinoCommand('V', 0);
+        end
+        function laserOn(obj)
+            if isa(obj.laserOnFunc,'function_handle')
+                feval(obj.laserOnFunc, obj.portID);
+            end
+        end
+        function laserOff(obj)
+            if isa(obj.laserOffFunc,'function_handle')
+                feval(obj.laserOffFunc, obj.portID);
+            end
+        end
 
+        %% arduinoCommand method
         function arduinoCommand(obj, messageChar, value)
             writeToArduino(messageChar, obj.portID, value)
         end
