@@ -38,6 +38,17 @@ switch messageType
         logValue('Reward delivered', portNum);
         AllNosePorts{portNum}.reward();
         %rewardArray = [rewardArray, 1];
+
+    case 'L'
+        % Laser stim started
+        logValue('Laser on', portNum);
+        AllNosePorts{portNum}.laserOn();
+    case 'l'
+        % Laser stim ended
+        logValue('Laser off', portNum);
+        AllNosePorts{portNum}.laserOff();
+
+
     case '#'
         % Error
         logEvent('Arduino ERROR');
