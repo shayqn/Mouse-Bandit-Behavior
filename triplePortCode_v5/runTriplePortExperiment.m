@@ -279,6 +279,10 @@ if p.centerPokeTrigger % if we're in centerPokeTrigger mode
         activateLeft = (rand <= p.leftRewardProb); % activate left port with prob = p.leftRewardProb
         activateRight = (rand <= p.rightRewardProb); % activate right port with prob = p.rightRewardProb
         activateSidePortsForDuration(activateLeft, activateRight, p.centerPokeRewardWindow);
+        
+        %NOTE: LASER WILL GO HERE
+        % if decided this is a laser trial
+        % then: rightport.activatelaser() .. etc .. 
     end
 end
 end
