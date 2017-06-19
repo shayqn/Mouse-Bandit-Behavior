@@ -64,6 +64,7 @@ logValue('center port ID', centerPort.portID);
 
 rightPort = NosePort(7,4);
 rightPort.setLEDPin(9);
+rightPort.setLaserPin(12);
 rightPort.setRewardDuration(p.rewardDurationRight);
 rightPort.setToSingleRewardMode();
 rightPort.rewardFunc = @rewardFunc;
@@ -73,6 +74,7 @@ logValue('right port ID', rightPort.portID);
 
 leftPort = NosePort(6,3);
 leftPort.setLEDPin(10);
+leftPort.setLaserPin(12);
 leftPort.setRewardDuration(p.rewardDurationLeft);
 leftPort.setToSingleRewardMode();
 leftPort.rewardFunc = @rewardFunc;
@@ -80,6 +82,21 @@ leftPort.noseOutFunc = @endTrial;
 leftPort.noseInFunc = @noseIn;
 logValue('left port ID', leftPort.portID);
 
+%for now let's hard code in the laser stim parameters:
+rightPort.setLaserDelay(5); %this is in milliseconds
+rightPort.setLaserStimDuration(500) %ms
+rightPort.setLaserPulseDuration(5) %ms
+rightPort.setLaserPulsePeriod(50) %ms
+
+leftPort.setLaserDelay(5); %this is in milliseconds
+leftPort.setLaserStimDuration(500) %ms
+leftPort.setLaserPulseDuration(5) %ms
+leftPort.setLaserPulsePeriod(50) %ms
+
+%create NosePort specifically for syncing with imaging
+%this object simply receives 5 volt pulses from the inscopix box
+%on pin 11. IE it treats like a IR beam and when it is detected (when 
+%a 5 volt pulse comes in) it records like a nose poke.
 syncPort = NosePort(11,13);
 syncPort.deactivate()
 syncPort.noseInFunc = @syncIn;
@@ -165,7 +182,7 @@ disp('noseIn')
 global p
 global pokeHistory pokeCount lastPokeTime 
 global rightPort leftPort centerPort
-global activateLeft activateRight
+global activateLeft activateRight laser_state
 global stats
 global iti
 global h
@@ -207,9 +224,23 @@ elseif portID == rightPort.portID || portID == leftPort.portID
             pokeHistory(pokeCount).rightPortStats.prob = p.rightRewardProb;
             pokeHistory(pokeCount).leftPortStats.ACTIVATE = activateLeft;
             pokeHistory(pokeCount).rightPortStats.ACTIVATE = activateRight;
+            pokeHistory(pokeCount).laser = laser_state;
             %if a decision is made, turn off the LEDs.
             rightPort.ledOff();
             leftPort.ledOff();
+            
+            %turn off the laser signal with a delay
+            %this is to prevent multiple pokes causing multiple laser stims
+            %the delay should be shorter than the fastest you think a mouse
+            %can poke twice
+            %this is under the assumption that there is an external
+            %controller outputing the laser pulse - which wasn't the
+            %original plan. To test, we are putting 500ms here (ie the
+            %length of the pulse). The problem with this, is that we think
+            %if the mouse pokes twice in the side while collecting a reward
+            %(for ex) the stim might restart on the second poke. 
+            executeFunctionWithDelay(@deactivateLaserStim,0.5)
+            
         else %if reward window is passed, than this is not a trial poke
             pokeHistory(pokeCount).isTRIAL = 0;
         end
@@ -218,6 +249,7 @@ elseif portID == rightPort.portID || portID == leftPort.portID
         %and we should turn off the lights until the center port is active
         %again
         centerPort.ledOff();
+        deactivateLaserStim();
     end
     %finally have to deal with the center pokes
 elseif portID == centerPort.portID
@@ -296,6 +328,15 @@ if p.centerPokeTrigger % if we're in centerPokeTrigger mode
         activateLeft = (rand <= p.leftRewardProb); % activate left port with prob = p.leftRewardProb
         activateRight = (rand <= p.rightRewardProb); % activate right port with prob = p.rightRewardProb
         activateSidePortsForDuration(activateLeft, activateRight, p.centerPokeRewardWindow);
+        
+        %add logic for laser stimulation
+        if rand <= 0.1  % <--- IE 10% of trials will be 'opto trials'. This should likely
+                        %become a paramter at some point. 
+           activateLaserStim();
+        else
+           deactivateLaserStim();
+        end
+        
     end
 end
 end
@@ -334,6 +375,24 @@ rightPort.deactivate();
 leftPort.deactivate();
 
 end
+
+%simple little fcn to activate laser on both side ports.
+function activateLaserStim()
+
+global rightPort leftPort laser_state
+    rightPort.activateLaser();
+    leftPort.activateLaser();
+    laser_state = 1;
+end
+
+function deactivateLaserStim()
+
+global rightPort leftPort laser_state
+    rightPort.deactivateLaser();
+    leftPort.deactivateLaser();
+    laser_state = 0;
+end
+
 
 %% Reward Function
 function rewardFunc(portID)

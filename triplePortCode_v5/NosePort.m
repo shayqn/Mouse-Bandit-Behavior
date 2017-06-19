@@ -29,7 +29,7 @@ classdef NosePort  < handle
             obj.portID = newPortID;
             obj.solenoidPin = solenoidPin;
             obj.beambreakPin = beambreakPin;
-
+            
             % create a global list of all NosePorts indexed by portID
             global AllNosePorts
             AllNosePorts{newPortID} = obj;
