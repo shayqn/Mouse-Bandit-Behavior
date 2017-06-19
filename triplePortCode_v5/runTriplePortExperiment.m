@@ -54,7 +54,7 @@ fprintf('\n')
 
 
 %% setup ports/arduino
-global centerPort rightPort leftPort
+global centerPort rightPort leftPort syncPort
 
 centerPort = NosePort(5,13);
 centerPort.setLEDPin(8);
@@ -80,6 +80,13 @@ leftPort.noseOutFunc = @endTrial;
 leftPort.noseInFunc = @noseIn;
 logValue('left port ID', leftPort.portID);
 
+syncPort = NosePort(11,13);
+syncPort.deactivate()
+syncPort.noseInFunc = @syncIn;
+logValue('Sync port ID', syncPort.portID);
+
+global sync_counter
+sync_counter = 0;
 
 if p.centerPokeTrigger
     rightPort.deactivate();
@@ -113,7 +120,7 @@ pokeHistory= struct;
 
 global iti lastPokeTime
 iti = p.minInterTrialInterval;
-lastPokeTime = datevec(now);
+lastPokeTime = clock;
 
 %create stats structure for online analysis and visualization
 global stats
@@ -132,7 +139,7 @@ while info.running
     pause(0.1)
         % actively probe whether or note enough time has elapsed to start a
     % new trial. If so, turn on the LED>
-    if etime(datevec(now),lastPokeTime) >= iti
+    if etime(clock,lastPokeTime) >= iti
         centerPort.ledOn();
     end
 end
@@ -143,7 +150,17 @@ end
 
 
 %% Nose In Functions
+function syncIn(portID) 
+% simply count the inscopix frames in a global variable.
+global sync_counter
+sync_counter = sync_counter + 1;
+end
+
+
 function noseIn(portID)
+global sync_counter sync_frame
+sync_frame = sync_counter;
+
 disp('noseIn')
 global p
 global pokeHistory pokeCount lastPokeTime 
@@ -154,7 +171,7 @@ global iti
 global h
 
 pokeCount = pokeCount+1; %increment pokeCount
-timeSinceLastPoke = etime(datevec(now),lastPokeTime);
+timeSinceLastPoke = etime(clock,lastPokeTime);
 
 %Update pokeHistory
 pokeHistory(pokeCount).timeStamp = now;
@@ -185,7 +202,7 @@ elseif portID == rightPort.portID || portID == leftPort.portID
         %elapsed from the trial iniation (last poke) to now.
         if timeSinceLastPoke <= p.centerPokeRewardWindow
             pokeHistory(pokeCount).isTRIAL = 2;
-            pokeHistory(pokeCount).trialTime = etime(datevec(now),lastPokeTime);
+            pokeHistory(pokeCount).trialTime = etime(clock,lastPokeTime);
             pokeHistory(pokeCount).leftPortStats.prob = p.leftRewardProb;
             pokeHistory(pokeCount).rightPortStats.prob = p.rightRewardProb;
             pokeHistory(pokeCount).leftPortStats.ACTIVATE = activateLeft;
@@ -232,7 +249,7 @@ end
 pokeHistory(pokeCount).REWARD = 0;
 
 %update stats and refresh figures
-stats = updatestats(stats,pokeHistory(pokeCount),pokeCount);
+stats = updatestats(stats,pokeHistory(pokeCount),pokeCount,sync_frame);
 global handlesCopy
 leftRewards = sum(stats.rewards.left);
 rightRewards = sum(stats.rewards.right);
@@ -251,7 +268,7 @@ cumstats = cumsumstats(stats);
 updatestatsfig(cumstats,h,pokeCount);
 
 %update the lastPokeTime
-lastPokeTime = datevec(now);
+lastPokeTime = clock;
 
 end
 
@@ -279,10 +296,6 @@ if p.centerPokeTrigger % if we're in centerPokeTrigger mode
         activateLeft = (rand <= p.leftRewardProb); % activate left port with prob = p.leftRewardProb
         activateRight = (rand <= p.rightRewardProb); % activate right port with prob = p.rightRewardProb
         activateSidePortsForDuration(activateLeft, activateRight, p.centerPokeRewardWindow);
-        
-        %NOTE: LASER WILL GO HERE
-        % if decided this is a laser trial
-        % then: rightport.activatelaser() .. etc .. 
     end
 end
 end
@@ -326,7 +339,7 @@ end
 function rewardFunc(portID)
 disp('rewardFunc')
 global p reactivateTimer
-global pokeHistory pokeCount stats
+global pokeHistory pokeCount stats sync_frame
 global h
 global currBlockReward blockRange currBlockSize
 
@@ -337,7 +350,7 @@ display(currBlockReward)
 % log rewarded port to poke history
 pokeHistory(pokeCount).REWARD = 1;
 %update stats and refresh figures
-stats = updatestats(stats,pokeHistory(pokeCount),pokeCount);
+stats = updatestats(stats,pokeHistory(pokeCount),pokeCount,sync_frame);
 cumstats = cumsumstats(stats);
 updatestatsfig(cumstats,h,pokeCount);
 
