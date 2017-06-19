@@ -125,11 +125,10 @@ else
     numBlocks.left = 1;
 end
 
-global currBlockReward blockRange currBlockSize
+global currBlockReward blockRange 
 currBlockReward = 0;
 blockRange = [p.blockRangeMin:p.blockRangeMax];
-currBlockSize = randi([min(blockRange),max(blockRange)]);
-display(currBlockSize)
+transitionProb = p.blockRangeMin;
 
 global pokeHistory pokeCount
 pokeCount = 0;
@@ -186,6 +185,7 @@ global activateLeft activateRight laser_state
 global stats
 global iti
 global h
+global currBlockReward currBlockTrial numBlocks
 
 pokeCount = pokeCount+1; %increment pokeCount
 timeSinceLastPoke = etime(clock,lastPokeTime);
@@ -219,6 +219,25 @@ elseif portID == rightPort.portID || portID == leftPort.portID
         %elapsed from the trial iniation (last poke) to now.
         if timeSinceLastPoke <= p.centerPokeRewardWindow
             pokeHistory(pokeCount).isTRIAL = 2;
+            % transition to other state based on transition probability
+            % (by # trials)
+            if rand <= transitionProb 
+                p.leftRewardProb = 1 - p.leftRewardProb; 
+                p.rightRewardProb = 1 - p.rightRewardProb; 
+                display('Reward Probabilities Switched')
+                display('Left Reward Prob:')
+                p.leftRewardProb
+                display('Right Reward Prob:')
+                p.rightRewardProb
+                % update stats
+                if p.rightRewardProb >= p.leftRewardProb
+                    numBlocks.right = numBlocks.right + 1;
+                else
+                    numBlocks.left = numBlocks.left + 1;
+                end
+                currBlockReward=0;
+                currBlockTrial=0;
+            end
             pokeHistory(pokeCount).trialTime = etime(clock,lastPokeTime);
             pokeHistory(pokeCount).leftPortStats.prob = p.leftRewardProb;
             pokeHistory(pokeCount).rightPortStats.prob = p.rightRewardProb;
@@ -228,6 +247,9 @@ elseif portID == rightPort.portID || portID == leftPort.portID
             %if a decision is made, turn off the LEDs.
             rightPort.ledOff();
             leftPort.ledOff();
+            currBlockTrial=currBlockTrial+1;
+            disp('Current Block Trial:')
+            currBlockTrial
             
             %turn off the laser signal with a delay
             %this is to prevent multiple pokes causing multiple laser stims
@@ -400,7 +422,7 @@ disp('rewardFunc')
 global p reactivateTimer
 global pokeHistory pokeCount stats sync_frame
 global h
-global currBlockReward blockRange currBlockSize
+global currBlockReward
 
 
 currBlockReward = currBlockReward + 1;
@@ -420,29 +442,6 @@ else
     deactivateSidePorts();
     reactivateTimer = executeFunctionWithDelay(@activateBothSidePorts, p.minInterTrialInterval);
 end
-
-%reupdate reward probabilities if needed.
-if currBlockReward >= currBlockSize
-    p.leftRewardProb = 1 - p.leftRewardProb;
-    p.rightRewardProb = 1 - p.rightRewardProb;
-    currBlockReward = 0;
-    currBlockSize = randi([min(blockRange),max(blockRange)]);
-    display('Reward Probabilities Switched')
-    display('Left Reward Prob:')
-    p.leftRewardProb
-    display('Right Reward Prob:')
-    p.rightRewardProb
-    display('Current Block Size:')
-    global numBlocks
-    if p.rightRewardProb >= p.leftRewardProb
-        numBlocks.right = numBlocks.right + 1;
-    else
-        numBlocks.left = numBlocks.left + 1;
-    end
-    currBlockSize
-end
-
-
 end
 
 %% End Trial Function
