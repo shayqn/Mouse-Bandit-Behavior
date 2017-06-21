@@ -132,7 +132,7 @@ void NosePort::update() {
 
 void NosePort::deliverReward() {
   DEBUG(String("Reward - nosePort ") + _nosePortNumber);
-  DEBUG(String("       - duration ") + (_rewardDuration_us / 1000);
+  DEBUG(String("       - duration ") + (_rewardDuration_us / 1000));
 
   if (_rewardDuration_us > 0) {
     // set timer; set pin high; log
