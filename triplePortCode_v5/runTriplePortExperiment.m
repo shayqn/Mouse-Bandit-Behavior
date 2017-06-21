@@ -125,7 +125,7 @@ else
     numBlocks.left = 1;
 end
 
-global currBlockReward blockRange 
+global currBlockReward blockRange transitionProb
 currBlockReward = 0;
 blockRange = [p.blockRangeMin:p.blockRangeMax];
 transitionProb = p.blockRangeMin;
@@ -186,6 +186,7 @@ global stats
 global iti
 global h
 global currBlockReward currBlockTrial numBlocks
+global transitionProb
 
 pokeCount = pokeCount+1; %increment pokeCount
 timeSinceLastPoke = etime(clock,lastPokeTime);
@@ -219,6 +220,17 @@ elseif portID == rightPort.portID || portID == leftPort.portID
         %elapsed from the trial iniation (last poke) to now.
         if timeSinceLastPoke <= p.centerPokeRewardWindow
             pokeHistory(pokeCount).isTRIAL = 2;
+            pokeHistory(pokeCount).trialTime = etime(clock,lastPokeTime);
+            pokeHistory(pokeCount).leftPortStats.prob = p.leftRewardProb;
+            pokeHistory(pokeCount).rightPortStats.prob = p.rightRewardProb;
+            pokeHistory(pokeCount).leftPortStats.ACTIVATE = activateLeft;
+            pokeHistory(pokeCount).rightPortStats.ACTIVATE = activateRight;
+            pokeHistory(pokeCount).laser = laser_state;
+            %if a decision is made, turn off the LEDs.
+            rightPort.ledOff();
+            leftPort.ledOff();
+            currBlockTrial=currBlockTrial+1;
+            
             % transition to other state based on transition probability
             % (by # trials)
             if rand <= transitionProb 
@@ -238,18 +250,6 @@ elseif portID == rightPort.portID || portID == leftPort.portID
                 currBlockReward=0;
                 currBlockTrial=0;
             end
-            pokeHistory(pokeCount).trialTime = etime(clock,lastPokeTime);
-            pokeHistory(pokeCount).leftPortStats.prob = p.leftRewardProb;
-            pokeHistory(pokeCount).rightPortStats.prob = p.rightRewardProb;
-            pokeHistory(pokeCount).leftPortStats.ACTIVATE = activateLeft;
-            pokeHistory(pokeCount).rightPortStats.ACTIVATE = activateRight;
-            pokeHistory(pokeCount).laser = laser_state;
-            %if a decision is made, turn off the LEDs.
-            rightPort.ledOff();
-            leftPort.ledOff();
-            currBlockTrial=currBlockTrial+1;
-            disp('Current Block Trial:')
-            currBlockTrial
             
             %turn off the laser signal with a delay
             %this is to prevent multiple pokes causing multiple laser stims
@@ -261,7 +261,8 @@ elseif portID == rightPort.portID || portID == leftPort.portID
             %length of the pulse). The problem with this, is that we think
             %if the mouse pokes twice in the side while collecting a reward
             %(for ex) the stim might restart on the second poke. 
-            executeFunctionWithDelay(@deactivateLaserStim,0.5)
+            
+            %executeFunctionWithDelay(@deactivateLaserStim,0.5)
             
         else %if reward window is passed, than this is not a trial poke
             pokeHistory(pokeCount).isTRIAL = 0;
@@ -311,7 +312,7 @@ totalRewards = leftRewards + rightRewards;
 leftTrials = sum(stats.trials.left)/2;
 rightTrials = sum(stats.trials.right)/2;
 totalTrials = leftTrials + rightTrials;
-global numBlocks
+
 leftBlocks = numBlocks.left;
 rightBlocks = numBlocks.right;
 totalBlocks = leftBlocks+rightBlocks;
