@@ -1,17 +1,8 @@
 
 #include "NosePort.h"
 
-// Set this to 1 for debug mode, otherwise set to 0
-#define DEBUG_MODE 0
-
-#if DEBUG_MODE
-  int debugPin = 12;  // Pin 12 will be in use in DEBUG MODE
-#endif
-
 void DEBUG(String message) {
-#if DEBUG_MODE
-  Serial.println(message.c_str());
-#endif
+  //Serial.println(message.c_str());
 }
 
 bool alternateLoopFlag = false; // DEBUG
@@ -21,11 +12,6 @@ void setup() {
   Serial.begin(115200);
   // tell PC that we're running by sending 'S' message
   Serial.println("S");
-
-  // DEBUG
-#if DEBUG_MODE
-  pinMode(debugPin, OUTPUT);
-#endif
 }
 
 void loop() {
@@ -52,14 +38,4 @@ void loop() {
     NosePort* p = NosePort::nosePortList[i];
     p->update();
   }
-
-  // DEBUG
-#if DEBUG_MODE
-  if (alternateLoopFlag) {
-    digitalWrite(debugPin, HIGH);
-  } else {
-    digitalWrite(debugPin, LOW);
-  }
-  alternateLoopFlag = !alternateLoopFlag;
-#endif
 }
