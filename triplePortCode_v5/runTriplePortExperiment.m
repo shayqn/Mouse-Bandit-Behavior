@@ -63,7 +63,7 @@ centerPort.noseInFunc = @centerPortPokeFunc;
 logValue('center port ID', centerPort.portID);
 
 rightPort = NosePort(7,4);
-rightPort.setLEDPin(9);
+rightPort.setLEDPin(10); % <-- change back to 10
 rightPort.setLaserPin(12);
 rightPort.setRewardDuration(p.rewardDurationRight);
 rightPort.setToSingleRewardMode();
@@ -73,7 +73,7 @@ rightPort.noseInFunc = @noseIn;
 logValue('right port ID', rightPort.portID);
 
 leftPort = NosePort(6,3);
-leftPort.setLEDPin(10);
+leftPort.setLEDPin(9);
 leftPort.setLaserPin(12);
 leftPort.setRewardDuration(p.rewardDurationLeft);
 leftPort.setToSingleRewardMode();
@@ -330,8 +330,8 @@ if p.centerPokeTrigger % if we're in centerPokeTrigger mode
         activateSidePortsForDuration(activateLeft, activateRight, p.centerPokeRewardWindow);
         
         %add logic for laser stimulation
-        if rand <= 0.1  % <--- IE 10% of trials will be 'opto trials'. This should likely
-                        %become a paramter at some point. 
+        if rand <= 1  % <--- IE 10% of trials will be 'opto trials'. This should likely
+                      %become a paramter at some point. 
            activateLaserStim();
         else
            deactivateLaserStim();

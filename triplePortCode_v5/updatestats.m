@@ -1,8 +1,12 @@
-function [ stats ] = updatestats(stats,poke,pokeCount)
+function [ stats ] = updatestats(stats,poke,pokeCount,syncFrame)
 % [ stats ] = updatestats( pokeHistory )
 % parses through one instance pokeHistory to update the pokeCount entry of
 % stats
 % 3/21/16 by shay neufeld
+% 10/18/16 - modified by shay to incorporate syncing with inscopix.
+
+%syncFrame
+stats.sync_frame(pokeCount) = syncFrame;
 
 %stats.time
 stats.times(pokeCount) = now;
