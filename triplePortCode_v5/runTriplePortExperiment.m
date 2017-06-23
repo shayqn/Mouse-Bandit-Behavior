@@ -239,7 +239,8 @@ elseif portID == rightPort.portID || portID == leftPort.portID
             %length of the pulse). The problem with this, is that we think
             %if the mouse pokes twice in the side while collecting a reward
             %(for ex) the stim might restart on the second poke. 
-            executeFunctionWithDelay(@deactivateLaserStim,0.5)
+            %changed to 10 ms to keep double poke from causing double stim
+            executeFunctionWithDelay(@deactivateLaserStim,0.01)
             
         else %if reward window is passed, than this is not a trial poke
             pokeHistory(pokeCount).isTRIAL = 0;
@@ -330,7 +331,7 @@ if p.centerPokeTrigger % if we're in centerPokeTrigger mode
         activateSidePortsForDuration(activateLeft, activateRight, p.centerPokeRewardWindow);
         
         %add logic for laser stimulation
-        if rand <= 1  % <--- IE 10% of trials will be 'opto trials'. This should likely
+        if rand <= 0.1  % <--- IE 10% of trials will be 'opto trials'. This should likely
                       %become a paramter at some point. 
            activateLaserStim();
         else
